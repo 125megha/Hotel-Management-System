@@ -1,0 +1,97 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="section-title">My Bookings</h1>
+      <p class="text-slate-500 text-sm mt-1">Track and manage all your reservations</p>
+    </div>
+    <a routerLink="/hotels" class="btn-secondary text-sm">
+      + New Booking
+    </a>
+  </div>
+
+  <div *ngIf="cancelMsg || payMsg"
+       class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-sm text-emerald-700 flex items-center gap-2">
+    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+    </svg>
+    {{ cancelMsg || payMsg }}
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="space-y-4">
+    <div *ngFor="let i of [1,2,3]" class="card p-6 animate-pulse">
+      <div class="flex gap-4">
+        <div class="w-24 h-24 bg-slate-200 rounded-xl"></div>
+        <div class="flex-1 space-y-3">
+          <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+          <div class="h-3 bg-slate-200 rounded w-1/3"></div>
+          <div class="h-3 bg-slate-200 rounded w-1/4"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bookings list -->
+  <div *ngIf="!loading && bookings.length > 0" class="space-y-4">
+    <div *ngFor="let b of bookings" class="card p-6 animate-fade-in">
+      <div class="flex flex-col sm:flex-row gap-4">
+        <!-- Icon -->
+        <div class="w-16 h-16 rounded-2xl bg-brand-50 flex items-center justify-center text-3xl flex-shrink-0">🏨</div>
+
+        <!-- Info -->
+        <div class="flex-1">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+            <div>
+              <h3 class="font-semibold text-slate-900">{{ b.hotelName || 'Hotel Booking' }}</h3>
+              <p class="text-sm text-slate-500">{{ b.roomType || 'Room' }} · {{ b.location || '' }}</p>
+            </div>
+            <span [class]="b.paymentStatus === 'Paid' ? 'badge-success' : 'badge-warning'">
+              {{ b.paymentStatus || 'Pending' }}
+            </span>
+          </div>
+
+          <div class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="bg-slate-50 rounded-lg p-2.5 text-center">
+              <div class="text-xs text-slate-400 mb-0.5">Check-in</div>
+              <div class="text-sm font-medium text-slate-800">{{ b.checkIn | date:'MMM d' }}</div>
+            </div>
+            <div class="bg-slate-50 rounded-lg p-2.5 text-center">
+              <div class="text-xs text-slate-400 mb-0.5">Check-out</div>
+              <div class="text-sm font-medium text-slate-800">{{ b.checkOut | date:'MMM d' }}</div>
+            </div>
+            <div class="bg-slate-50 rounded-lg p-2.5 text-center">
+              <div class="text-xs text-slate-400 mb-0.5">Nights</div>
+              <div class="text-sm font-medium text-slate-800">{{ nights(b.checkIn, b.checkOut) }}</div>
+            </div>
+            <div class="bg-brand-50 rounded-lg p-2.5 text-center">
+              <div class="text-xs text-brand-400 mb-0.5">Total</div>
+              <div class="text-sm font-bold text-brand-700">₹{{ b.totalAmount | number }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3">
+        <span class="text-xs text-slate-400">Booking #{{ b.bookingId }}</span>
+        <div class="ml-auto flex gap-2">
+          <button *ngIf="b.paymentStatus === 'Pending'" (click)="pay(b.bookingId!)"
+                  class="btn-primary text-sm py-1.5 px-4">
+            Pay Now
+          </button>
+          <button (click)="cancel(b.bookingId!)" class="btn-danger">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!loading && bookings.length === 0" class="text-center py-20">
+    <div class="text-6xl mb-4">📅</div>
+    <h3 class="font-display text-xl font-semibold text-slate-700 mb-2">No bookings yet</h3>
+    <p class="text-slate-400 text-sm mb-6">Start exploring hotels and book your perfect stay.</p>
+    <a routerLink="/hotels" class="btn-primary">Browse Hotels</a>
+  </div>
+</div>

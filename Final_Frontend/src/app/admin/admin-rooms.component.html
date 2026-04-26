@@ -1,0 +1,86 @@
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="flex items-center gap-3 mb-2">
+    <a routerLink="/admin/hotels" class="text-brand-600 hover:underline text-sm">← Hotels</a>
+    <span class="text-slate-300">/</span>
+    <span class="text-sm text-slate-500">Rooms</span>
+  </div>
+
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="section-title">{{ hotel?.name || 'Hotel' }} – Rooms</h1>
+      <p class="text-slate-500 text-sm mt-1">Manage room inventory and pricing</p>
+    </div>
+    <button (click)="openAdd()" class="btn-primary flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Add Room
+    </button>
+  </div>
+
+  <div *ngIf="msg" class="mb-5 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-sm text-emerald-700">✓ {{ msg }}</div>
+  <div *ngIf="error && !showForm" class="mb-5 p-3.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{{ error }}</div>
+
+  <!-- Form Modal -->
+  <div *ngIf="showForm" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-slide-up">
+      <div class="p-6 border-b border-slate-100">
+        <h2 class="font-display text-xl font-semibold">{{ editing ? 'Edit Room' : 'Add New Room' }}</h2>
+      </div>
+      <div class="p-6 space-y-4">
+        <div *ngIf="error" class="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">{{ error }}</div>
+        <div>
+          <label class="label">Hotel</label>
+          <select disabled="" [(ngModel)]="form.hotelId" class="input-field">
+            <option  *ngFor="let h of hotels" [value]="h.hotelId">{{ h.name }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="label">Room Type</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button *ngFor="let type of roomTypes" (click)="form.type = type"
+                    [class]="form.type === type ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'"
+                    class="border rounded-xl p-3 text-sm font-medium transition-colors text-center">
+              {{ typeIcon(type) }} {{ type }}
+            </button>
+          </div>
+        </div>
+        <div>
+          <label class="label">Price per Night (₹)</label>
+          <input type="number" [(ngModel)]="form.price" class="input-field" placeholder="e.g. 3500" min="0"/>
+        </div>
+      </div>
+      <div class="p-6 border-t border-slate-100 flex justify-end gap-3">
+        <button (click)="cancel()" class="btn-secondary">Cancel</button>
+        <button (click)="save()" class="btn-primary">{{ editing ? 'Update' : 'Add Room' }}</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div *ngFor="let i of [1,2,3]" class="card p-5 animate-pulse h-32"></div>
+  </div>
+
+  <!-- Rooms grid -->
+  <div *ngIf="!loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div *ngFor="let room of rooms" class="card p-5 hover:shadow-card-hover transition-shadow">
+      <div class="flex items-start justify-between mb-3">
+        <span class="text-3xl">{{ typeIcon(room.type) }}</span>
+        <span class="badge-info text-xs">Room #{{ room.roomId }}</span>
+      </div>
+      <h3 class="font-semibold text-slate-900 mb-1">{{ room.type }} Room</h3>
+      <div class="text-xl font-display font-bold text-brand-600 mb-4">₹{{ room.price | number }}<span class="text-sm text-slate-400 font-normal">/night</span></div>
+      <div class="flex gap-2">
+        <button (click)="openEdit(room)" class="flex-1 btn-secondary text-xs py-1.5">Edit</button>
+        <button (click)="delete(room.roomId!)" class="btn-danger text-xs py-1.5 px-3">Delete</button>
+      </div>
+    </div>
+
+    <div *ngIf="rooms.length === 0"
+         class="col-span-full text-center py-16 text-slate-400">
+      <div class="text-5xl mb-3">🛏️</div>
+      <p class="text-sm">No rooms yet. Add one to get started.</p>
+    </div>
+  </div>
+</div>

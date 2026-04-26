@@ -1,0 +1,101 @@
+<div class="min-h-screen flex">
+  <!-- Left panel -->
+  <div class="hidden lg:flex lg:w-1/2 relative bg-slate-900 flex-col justify-between p-12 overflow-hidden">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 opacity-20"
+         style="background-image: url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&auto=format');
+                background-size: cover; background-position: center;">
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-slate-900/80 to-brand-900/60"></div>
+
+    <div class="relative z-10">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+          </svg>
+        </div>
+        <span class="font-display text-xl font-semibold text-white">Chill<span class="text-brand-400">-In</span></span>
+      </div>
+    </div>
+
+    <div class="relative z-10">
+      <blockquote class="text-white">
+        <p class="font-display text-3xl font-semibold leading-snug mb-4">
+          "Your perfect stay<br/>is just a click away."
+        </p>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          Discover hand-picked hotels, seamless bookings,<br/>
+          and unforgettable experiences.
+        </p>
+      </blockquote>
+      <div class="mt-10 flex gap-4">
+        <div class="bg-white/10 backdrop-blur rounded-xl px-5 py-3 text-center">
+          <div class="text-2xl font-display font-bold text-white">500+</div>
+          <div class="text-xs text-slate-400 mt-0.5">Hotels</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur rounded-xl px-5 py-3 text-center">
+          <div class="text-2xl font-display font-bold text-white">4.9★</div>
+          <div class="text-xs text-slate-400 mt-0.5">Avg Rating</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur rounded-xl px-5 py-3 text-center">
+          <div class="text-2xl font-display font-bold text-white">24/7</div>
+          <div class="text-xs text-slate-400 mt-0.5">Support</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="flex-1 flex items-center justify-center px-6 py-12 bg-slate-50">
+    <div class="w-full max-w-md animate-slide-up">
+      <!-- Mobile logo -->
+      <div class="lg:hidden flex items-center gap-2 mb-8">
+        <div class="w-8 h-8 rounded-xl bg-brand-600 flex items-center justify-center">
+          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+          </svg>
+        </div>
+        <span class="font-display font-semibold text-xl text-slate-900">Chill<span class="text-brand-600">-In</span></span>
+      </div>
+
+      <h1 class="text-3xl font-display font-semibold text-slate-900 mb-2">Welcome back</h1>
+      <p class="text-slate-500 text-sm mb-8">Sign in to manage your bookings and explore hotels.</p>
+
+      <div *ngIf="error" class="mb-5 p-3.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600 flex items-center gap-2">
+        <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>
+        {{ error }}
+      </div>
+
+      <div class="space-y-5">
+        <div>
+          <label class="label">Email address</label>
+          <input type="email" [(ngModel)]="email" class="input-field" placeholder="you@example.com" (keyup.enter)="login()"/>
+        </div>
+        <div>
+          <label class="label">Password</label>
+          <input type="password" [(ngModel)]="password" class="input-field" placeholder="••••••••" (keyup.enter)="login()"/>
+        </div>
+
+        <button (click)="login()" [disabled]="loading"
+                class="w-full btn-primary py-3 flex items-center justify-center gap-2 text-base">
+          <svg *ngIf="loading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          {{ loading ? 'Signing in...' : 'Sign In' }}
+        </button>
+      </div>
+
+      <p class="mt-6 text-center text-sm text-slate-500">
+        Don't have an account?
+        <a routerLink="/register" class="text-brand-600 font-medium hover:underline ml-1">Create one free</a>
+      </p>
+
+      <!-- Demo credentials -->
+     
+    </div>
+  </div>
+</div>

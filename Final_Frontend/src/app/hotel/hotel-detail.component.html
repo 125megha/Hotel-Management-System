@@ -1,0 +1,375 @@
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div *ngIf="loading" class="text-center py-20">
+    <svg
+      class="w-8 h-8 animate-spin text-brand-500 mx-auto"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      />
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+      />
+    </svg>
+  </div>
+
+  <div *ngIf="hotel && !loading" class="animate-fade-in">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-sm text-slate-400 mb-6">
+      <a routerLink="/hotels" class="hover:text-brand-600">Hotels</a>
+      <span>/</span>
+      <span class="text-slate-700">{{ hotel.name }}</span>
+    </nav>
+
+    <!-- Hero -->
+    <div
+      class="relative h-72 md:h-96 rounded-2xl overflow-hidden mb-8 shadow-card"
+    >
+      <img
+        src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&auto=format"
+        [alt]="hotel.name"
+        class="w-full h-full object-cover"
+      />
+      <div
+        class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
+      ></div>
+      <div class="absolute bottom-6 left-6 text-white">
+        <h1 class="font-display text-3xl md:text-4xl font-bold mb-1">
+          {{ hotel.name }}
+        </h1>
+        <p class="flex items-center gap-1 text-white/80 text-sm">
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+            />
+          </svg>
+          {{ hotel.location }}
+        </p>
+      </div>
+      <div
+        *ngIf="hotel.averageRating"
+        class="absolute top-4 right-4 bg-white rounded-xl px-3 py-1.5 flex items-center gap-1 shadow-md"
+      >
+        <span class="text-amber-400 font-bold">★</span>
+        <span class="font-semibold text-slate-800">{{
+          hotel.averageRating | number: "1.1-1"
+        }}</span>
+        <span class="text-slate-400 text-xs"
+          >({{ ratings.length }} reviews)</span
+        >
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Left: Rooms -->
+      <div class="lg:col-span-2">
+        <!-- Description -->
+        <div class="card p-6 mb-6">
+          <h2 class="font-display text-xl font-semibold mb-2">
+            About this hotel
+          </h2>
+          <p class="text-slate-500 text-sm leading-relaxed">
+            {{ hotel.description }}
+          </p>
+        </div>
+
+        <!-- Date picker for availability -->
+        <div class="card p-6 mb-6">
+          <h2 class="font-display text-xl font-semibold mb-4">
+            Check availability
+          </h2>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="label">Check-in</label>
+              <input
+                type="date"
+                [(ngModel)]="checkIn"
+                [min]="minDate"
+                class="input-field"
+                (change)="checkRoomAvailability()"
+              />
+            </div>
+            <div>
+              <label class="label">Check-out</label>
+              <input
+                type="date"
+                [(ngModel)]="checkOut"
+                [min]="checkIn || minDate"
+                class="input-field"
+                (change)="checkRoomAvailability()"
+              />
+            </div>
+          </div>
+          <div
+            *ngIf="nights > 0"
+            class="text-sm text-brand-700 bg-brand-50 rounded-lg px-3 py-2"
+          >
+            {{ nights }} night{{ nights > 1 ? "s" : "" }} selected
+          </div>
+        </div>
+
+        <!-- Rooms -->
+        <div class="card p-6">
+          <h2 class="font-display text-xl font-semibold mb-5">
+            Available Rooms
+          </h2>
+          <div class="space-y-4">
+            <div
+              *ngFor="let room of rooms"
+              class="border rounded-xl p-4 flex items-center justify-between hover:border-brand-400 transition-colors"
+              [class.border-brand-500]="selectedRoom?.roomId === room.roomId"
+              [class.bg-brand-50]="selectedRoom?.roomId === room.roomId"
+              [class.border-slate-200]="selectedRoom?.roomId !== room.roomId"
+            >
+              <div class="flex items-center gap-4">
+                <div class="text-3xl">{{ roomTypeIcon(room.type) }}</div>
+                <div>
+                  <div class="font-semibold text-slate-800">
+                    {{ room.type }} Room
+                  </div>
+                  <div class="text-xs text-slate-400 mt-0.5">
+                    Room #{{ room.roomId }}
+                  </div>
+                  <div
+                    *ngIf="availability[room.roomId!] !== undefined"
+                    class="mt-1"
+                  >
+                    <span
+                      *ngIf="availability[room.roomId!]"
+                      class="badge-success"
+                      >Available</span
+                    >
+                    <span
+                      *ngIf="!availability[room.roomId!]"
+                      class="badge bg-red-100 text-red-700"
+                      >Booked</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-lg font-bold text-slate-900">
+                  ₹{{ room.price | number }}
+                </div>
+                <div class="text-xs text-slate-400">/night</div>
+                <div *ngIf="nights > 0" class="text-xs text-brand-600 mt-0.5">
+                  ₹{{ room.price * nights | number }} total
+                </div>
+                <button
+                  (click)="selectRoom(room)"
+                  class="mt-2 btn-primary text-xs py-1.5 px-4"
+                  [disabled]="availability[room.roomId!] === false"
+                >
+                  {{
+                    selectedRoom?.roomId === room.roomId
+                      ? "✓ Selected"
+                      : "Select"
+                  }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Booking summary + Ratings -->
+      <div class="space-y-6">
+        <!-- Booking Summary Card -->
+        <div class="card p-6 top-20">
+          <h2 class="font-display text-lg font-semibold mb-4">
+            Book your stay
+          </h2>
+
+          <div
+            *ngIf="bookingMsg"
+            class="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-sm text-emerald-700"
+          >
+            ✓ {{ bookingMsg }}
+          </div>
+          <div
+            *ngIf="bookingError"
+            class="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600"
+          >
+            {{ bookingError }}
+          </div>
+
+          <div
+            *ngIf="!selectedRoom"
+            class="text-center py-8 text-slate-400 text-sm"
+          >
+            <div class="text-3xl mb-2">🛏️</div>
+            Select a room and dates to continue
+          </div>
+
+          <div *ngIf="selectedRoom">
+            <div class="bg-slate-50 rounded-xl p-4 mb-4 space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-slate-500">Room</span>
+                <span class="font-medium">{{ selectedRoom.type }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Check-in</span>
+                <span class="font-medium">{{ checkIn | date }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Check-out</span>
+                <span class="font-medium">{{ checkOut | date }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Nights</span>
+                <span class="font-medium">{{ nights }}</span>
+              </div>
+              <div
+                class="border-t border-slate-200 pt-2 flex justify-between font-semibold"
+              >
+                <span>Total</span>
+                <span class="text-brand-600"
+                  >₹{{ selectedRoom.price * nights | number }}</span
+                >
+              </div>
+            </div>
+
+            <button
+              (click)="book()"
+              [disabled]="bookingLoading || !checkIn || !checkOut"
+              class="w-full btn-primary py-3 flex items-center justify-center gap-2"
+            >
+              <svg
+                *ngIf="bookingLoading"
+                class="w-4 h-4 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
+              </svg>
+              {{ bookingLoading ? "Booking..." : "Confirm Booking" }}
+            </button>
+
+            <p
+              *ngIf="!auth.isLoggedIn"
+              class="text-xs text-center text-slate-400 mt-2"
+            >
+              <a routerLink="/login" class="text-brand-600 underline"
+                >Sign in</a
+              >
+              to book
+            </p>
+          </div>
+        </div>
+
+        <!-- Ratings -->
+        <div class="card p-6">
+          <h2 class="font-display text-lg font-semibold mb-4">Guest Reviews</h2>
+
+          <div *ngFor="let r of ratings" class="mb-4 pb-4">
+            <div class="flex items-center gap-2 mb-1">
+              <div
+                class="w-7 h-7 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-xs font-semibold"
+              >
+                <!-- {{ r.userName?.charAt(0) || "U" }} -->
+              </div>
+              <span class="text-sm font-medium">{{
+                r.userName || "Guest"
+              }}</span>
+              <div class="ml-auto flex gap-0.5">
+                <span
+                  *ngFor="let i of [1, 2, 3, 4, 5]"
+                  [class]="
+                    i <= r.rating1
+                      ? 'text-amber-400 text-xs'
+                      : 'text-slate-200 text-xs'
+                  "
+                  >★</span
+                >
+              </div>
+            </div>
+            <p class="text-xs text-slate-500 leading-relaxed">{{ r.review }}</p>
+          </div>
+
+          <div
+            *ngIf="ratings.length === 0"
+            class="text-center py-4 text-slate-400 text-sm"
+          >
+            No reviews yet
+          </div>
+
+          <!-- Add review -->
+          <div
+            *ngIf="auth.isLoggedIn"
+            class="mt-4 pt-4 border-t border-slate-100"
+          >
+            <h3 class="text-sm font-semibold mb-3">Leave a review</h3>
+            <div class="flex gap-1 mb-2">
+              <button
+                *ngFor="let i of [1, 2, 3, 4, 5]"
+                (click)="myRating = i"
+                [class]="
+                  i <= myRating
+                    ? 'text-amber-400 text-xl'
+                    : 'text-slate-200 text-xl'
+                "
+                class="hover:scale-110 transition-transform"
+              >
+                ★
+              </button>
+            </div>
+
+            <!-- ✅ ADD THIS (new dropdown, synced with stars) -->
+            <div class="mb-3">
+              <select [(ngModel)]="myRating" class="input-field text-sm">
+                <option [ngValue]="1">1 ⭐ - Poor</option>
+                <option [ngValue]="2">2 ⭐⭐ - Fair</option>
+                <option [ngValue]="3">3 ⭐⭐⭐ - Good</option>
+                <option [ngValue]="4">4 ⭐⭐⭐⭐ - Very Good</option>
+                <option [ngValue]="5">5 ⭐⭐⭐⭐⭐ - Excellent</option>
+              </select>
+            </div>
+            <textarea
+              [(ngModel)]="myReview"
+              rows="3"
+              class="input-field text-sm resize-none mb-3"
+              placeholder="Share your experience..."
+            ></textarea>
+            <div *ngIf="ratingMsg" class="text-xs text-emerald-600 mb-2">
+              {{ ratingMsg }}
+            </div>
+            <button
+              (click)="submitRating()"
+              class="btn-primary text-sm py-2 w-full"
+            >
+              Submit Review
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

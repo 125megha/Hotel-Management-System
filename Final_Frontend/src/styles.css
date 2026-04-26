@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { font-family: 'DM Sans', sans-serif; }
+  body { @apply bg-slate-50 text-slate-800; }
+  h1, h2, h3 { font-family: 'Playfair Display', serif; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-brand-600 hover:bg-brand-700 text-white font-medium px-6 py-2.5 rounded-xl
+           transition-all duration-200 active:scale-95 shadow-sm;
+  }
+  .btn-secondary {
+    @apply border border-slate-200 hover:border-brand-400 hover:text-brand-600 text-slate-700
+           font-medium px-6 py-2.5 rounded-xl transition-all duration-200 bg-white;
+  }
+  .btn-danger {
+    @apply bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-xl
+           transition-all duration-200 text-sm;
+  }
+  .card {
+    @apply bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-shadow duration-300 overflow-hidden;
+  }
+  .input-field {
+    @apply w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none
+           focus:ring-2 focus:ring-brand-400 focus:border-transparent bg-white transition;
+  }
+  .label {
+    @apply block text-sm font-medium text-slate-600 mb-1.5;
+  }
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-success { @apply badge bg-emerald-100 text-emerald-700; }
+  .badge-warning { @apply badge bg-amber-100 text-amber-700; }
+  .badge-info    { @apply badge bg-sky-100 text-sky-700; }
+  .section-title { @apply text-3xl md:text-4xl font-display font-semibold text-slate-900; }
+  .nav-link {
+    @apply text-slate-600 hover:text-brand-600 font-medium transition-colors duration-150 text-sm;
+  }
+}
+
+/* Smooth page transitions */
+router-outlet + * { animation: fadeIn 0.3s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }

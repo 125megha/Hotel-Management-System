@@ -1,0 +1,71 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { User } from '../shared/models';
+import { environment } from '../../environments/environment';
+
+@Component({
+  selector: 'app-admin-users',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="section-title">Users</h1>
+      <p class="text-slate-500 text-sm mt-1">{{ users.length }} registered users</p>
+    </div>
+    <a routerLink="/admin/dashboard" class="btn-secondary text-sm">← Dashboard</a>
+  </div>
+
+  <div *ngIf="loading" class="space-y-3">
+    <div *ngFor="let i of [1,2,3]" class="card p-5 animate-pulse h-16"></div>
+  </div>
+
+  <div *ngIf="!loading" class="card overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 border-b border-slate-200">
+        <tr>
+          <th class="text-left px-5 py-3.5 font-semibold text-slate-600">User</th>
+          <th class="text-left px-5 py-3.5 font-semibold text-slate-600">Email</th>
+          <th class="text-left px-5 py-3.5 font-semibold text-slate-600">Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of users" class="border-b border-slate-100 hover:bg-slate-50/50">
+          <td class="px-5 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-sm font-semibold">
+                {{ u.name?.charAt(0)?.toUpperCase() }}
+              </div>
+              <span class="font-medium text-slate-800">{{ u.name }}</span>
+            </div>
+          </td>
+          <td class="px-5 py-4 text-slate-500">{{ u.email }}</td>
+          <td class="px-5 py-4">
+            <span [class]="u.role === 'Admin' ? 'badge-warning' : 'badge-info'">{{ u.role }}</span>
+          </td>
+        </tr>
+        <tr *ngIf="users.length === 0">
+          <td colspan="3" class="text-center py-12 text-slate-400">No users found</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+  `
+})
+export class AdminUsersComponent implements OnInit {
+  users: User[] = [];
+  loading = true;
+
+  constructor(private http: HttpClient) {}
+
+  ngOnInit() {
+    this.http.get<User[]>(`${environment.apiUrl}/User/getAll`).subscribe({
+      next: u => { this.users = u; this.loading = false; },
+      error: () => this.loading = false
+    });
+  }
+}
